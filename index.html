@@ -728,13 +728,25 @@
           <div class="col-lg-8">
             <div class="contact-form text-center">
               <div id="success"></div>
-              <form name="sentMessage" id="contactForm" novalidate="novalidate">
+              <form
+                action="https://formsubmit.co/bnodbond@gmail.com"
+                method="POST"
+                name="sentMessage"
+                id="contactForm"
+                novalidate="novalidate"
+              >
+                <input type="hidden" name="_captcha" value="false" />
+                <input
+                  type="hidden"
+                  name="_next"
+                  value="https://binodsiwakoti.com.np/thanks.html"
+                />
                 <div class="form-row">
                   <div class="control-group col-sm-6">
                     <input
                       type="text"
                       class="form-control p-4"
-                      id="name"
+                      name="name"
                       placeholder="Your Name"
                       required="required"
                       data-validation-required-message="Please enter your name"
@@ -745,7 +757,7 @@
                     <input
                       type="email"
                       class="form-control p-4"
-                      id="email"
+                      name="email"
                       placeholder="Your Email"
                       required="required"
                       data-validation-required-message="Please enter your email"
@@ -768,7 +780,7 @@
                   <textarea
                     class="form-control py-3 px-4"
                     rows="5"
-                    id="message"
+                    name="name"
                     placeholder="Message"
                     required="required"
                     data-validation-required-message="Please enter your message"
@@ -853,7 +865,6 @@
 
     <!-- Contact Javascript File -->
     <script src="mail/jqBootstrapValidation.min.js"></script>
-    <script src="mail/contact.js"></script>
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
