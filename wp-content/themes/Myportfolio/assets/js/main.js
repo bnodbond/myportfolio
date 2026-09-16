@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const categoryStages = document.querySelectorAll('.category-parallax-stage');
     const projectsSection = document.getElementById('projects');
     const stickyNavBar = document.getElementById('projectsStickyNav');
+    const filterContainer = document.querySelector('.projects-category-filter');
 
     if (filterBtns.length > 0 && categoryStages.length > 0) {
         let isUserClicking = false;
@@ -124,8 +125,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const isTarget = btn.getAttribute('data-target') === targetId;
                 btn.classList.toggle('is-active', isTarget);
                 btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
-                if (isTarget && stickyNavBar) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                // Scroll horizontally ONLY within the filter container on mobile (never touch window scroll!)
+                if (isTarget && filterContainer && filterContainer.scrollWidth > filterContainer.clientWidth) {
+                    const btnLeft = btn.offsetLeft;
+                    const btnWidth = btn.offsetWidth;
+                    const containerWidth = filterContainer.offsetWidth;
+                    filterContainer.scrollTo({
+                        left: btnLeft - (containerWidth / 2) + (btnWidth / 2),
+                        behavior: 'smooth'
+                    });
                 }
             });
         }
@@ -165,32 +173,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateCategoryScrollspy() {
             if (isUserClicking) return;
+            if (!projectsSection) return;
 
-            const navHeight = stickyNavBar ? stickyNavBar.offsetHeight : 90;
+            const secRect = projectsSection.getBoundingClientRect();
+            const navHeight = stickyNavBar ? stickyNavBar.offsetHeight : 85;
             const threshold = navHeight + 25;
 
-            if (projectsSection) {
-                const secRect = projectsSection.getBoundingClientRect();
-
-                // If user hasn't reached projects section yet, highlight ALL
-                if (secRect.top > threshold) {
-                    setActiveCategoryBtn('all');
-                    if (stickyNavBar) stickyNavBar.classList.remove('is-stuck');
-                    return;
-                }
-
-                if (stickyNavBar) {
-                    stickyNavBar.classList.toggle('is-stuck', secRect.top <= 0);
-                }
+            // 1. If user hasn't reached projects section yet (Hero, About, Services), leave page scroll completely natural
+            if (secRect.top > 60) {
+                setActiveCategoryBtn('all');
+                if (stickyNavBar) stickyNavBar.classList.remove('is-stuck');
+                return;
             }
 
-            // Find the active stage that is currently stacked at the top
+            // 2. If user has scrolled completely past projects section (News, Contact), do not touch
+            if (secRect.bottom < 0) {
+                if (stickyNavBar) stickyNavBar.classList.remove('is-stuck');
+                return;
+            }
+
+            // 3. User is actively within projects section
+            if (stickyNavBar) {
+                stickyNavBar.classList.toggle('is-stuck', secRect.top <= 0);
+            }
+
+            // Find which stage is currently stacked at the top
             let currentActiveId = 'all';
 
             categoryStages.forEach(function (stage) {
                 const rect = stage.getBoundingClientRect();
-                // If this stage has reached or passed the sticky threshold, and its bottom hasn't scrolled completely away
-                if (rect.top <= threshold + 25 && rect.bottom > threshold) {
+                if (rect.top <= threshold && rect.bottom > threshold) {
                     currentActiveId = stage.id;
                 }
             });
@@ -207,9 +219,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 scrollspyTicking = true;
             }
         }, { passive: true });
-
-        // Initial check on load
-        updateCategoryScrollspy();
     }
 
     /* ─── 6. Project Banner Parallax Scroll Effect ───────────────────────────── */
