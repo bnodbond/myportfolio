@@ -774,23 +774,14 @@ ul, ol {
 
 /* ─── 6. Full-Width Project Showcase Strips & Sticky Parallax Stacking ─── */
 .ferran-projects-section {
-    padding: 4.5rem 0 0;
+    padding: 3.5rem 0 0;
     position: relative;
     background-color: var(--color-bg);
 }
 
-.projects-filter-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    gap: 1.8rem;
-    margin-bottom: 1.2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-light);
-}
-.projects-header-left {
-    max-width: 450px;
+.projects-section-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
 }
 .projects-eyebrow-tag {
     font-size: 0.72rem;
@@ -809,12 +800,43 @@ ul, ol {
     line-height: 1.1;
 }
 
+/* ─── Sticky Category Navigation Bar ─── */
+.projects-sticky-nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245, 245, 243, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 0.9rem 0 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+}
+.projects-sticky-nav-bar.is-stuck {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    background: rgba(245, 245, 243, 0.98);
+}
+
+.projects-sticky-nav-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
 .projects-category-filter {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
 }
+.projects-category-filter::-webkit-scrollbar {
+    display: none;
+}
+
 .project-filter-btn {
     background: transparent;
     border: 1px solid var(--border-light);
@@ -830,16 +852,19 @@ ul, ol {
     align-items: center;
     gap: 6px;
     font-family: var(--font-body);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .project-filter-btn:hover {
     border-color: var(--color-text);
     color: var(--color-text);
+    transform: translateY(-1px);
 }
 .project-filter-btn.is-active {
     background: #1C1D20;
     border-color: #1C1D20;
     color: #FFF;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 .project-filter-btn .filter-count {
     font-size: 0.65rem;
@@ -858,9 +883,23 @@ ul, ol {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0 2rem;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--color-text-secondary);
+    padding-bottom: 0.2rem;
+}
+.cat-bar-caption {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+.cat-total-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: rgba(200, 184, 247, 0.35);
+    color: #432E7A;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    white-space: nowrap;
 }
 .cat-view-archive-link {
     font-weight: 700;
@@ -886,7 +925,7 @@ ul, ol {
 /* Category Parallax Stage Card */
 .category-parallax-stage {
     position: sticky;
-    top: 74px;
+    top: 96px;
     min-height: 560px;
     display: flex;
     align-items: center;

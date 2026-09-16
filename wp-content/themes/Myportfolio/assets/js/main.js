@@ -109,41 +109,107 @@ document.addEventListener('DOMContentLoaded', function () {
         }, { passive: true });
     }
 
-    /* ─── 5. Interactive Project Category Jump & Navigation ────────────────── */
+    /* ─── 5. Interactive Project Category Jump & Scrollspy ─────────────────── */
     const filterBtns = document.querySelectorAll('.project-filter-btn');
-    const projectCards = document.querySelectorAll('.category-parallax-stage, .project-banner-item');
+    const categoryStages = document.querySelectorAll('.category-parallax-stage');
+    const projectsSection = document.getElementById('projects');
+    const stickyNavBar = document.getElementById('projectsStickyNav');
 
-    if (filterBtns.length > 0) {
+    if (filterBtns.length > 0 && categoryStages.length > 0) {
+        let isUserClicking = false;
+        let clickTimer = null;
+
+        function setActiveCategoryBtn(targetId) {
+            filterBtns.forEach(function (btn) {
+                const isTarget = btn.getAttribute('data-target') === targetId;
+                btn.classList.toggle('is-active', isTarget);
+                btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+                if (isTarget && stickyNavBar) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+        }
+
         filterBtns.forEach(function (btn) {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
                 const targetId = this.getAttribute('data-target');
-                const targetUrl = this.getAttribute('data-url');
 
-                // Active button state
-                filterBtns.forEach(b => {
-                    b.classList.remove('is-active');
-                    b.setAttribute('aria-selected', 'false');
-                });
-                this.classList.add('is-active');
-                this.setAttribute('aria-selected', 'true');
+                isUserClicking = true;
+                if (clickTimer) clearTimeout(clickTimer);
+                clickTimer = setTimeout(function () {
+                    isUserClicking = false;
+                }, 900);
+
+                setActiveCategoryBtn(targetId);
+
+                const navHeight = stickyNavBar ? stickyNavBar.offsetHeight : 90;
 
                 if (targetId === 'all') {
-                    const projectsSec = document.getElementById('projects');
-                    if (projectsSec) {
-                        const yOffset = -70;
-                        const y = projectsSec.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    if (projectsSection) {
+                        const y = projectsSection.getBoundingClientRect().top + window.pageYOffset - 15;
                         window.scrollTo({ top: y, behavior: 'smooth' });
                     }
                 } else if (targetId) {
                     const targetEl = document.getElementById(targetId);
                     if (targetEl) {
-                        const yOffset = -70;
-                        const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        const y = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight - 12;
                         window.scrollTo({ top: y, behavior: 'smooth' });
                     }
                 }
             });
         });
+
+        /* Real-time Category Scrollspy Highlighting while cards stack */
+        let scrollspyTicking = false;
+
+        function updateCategoryScrollspy() {
+            if (isUserClicking) return;
+
+            const navHeight = stickyNavBar ? stickyNavBar.offsetHeight : 90;
+            const threshold = navHeight + 25;
+
+            if (projectsSection) {
+                const secRect = projectsSection.getBoundingClientRect();
+
+                // If user hasn't reached projects section yet, highlight ALL
+                if (secRect.top > threshold) {
+                    setActiveCategoryBtn('all');
+                    if (stickyNavBar) stickyNavBar.classList.remove('is-stuck');
+                    return;
+                }
+
+                if (stickyNavBar) {
+                    stickyNavBar.classList.toggle('is-stuck', secRect.top <= 0);
+                }
+            }
+
+            // Find the active stage that is currently stacked at the top
+            let currentActiveId = 'all';
+
+            categoryStages.forEach(function (stage) {
+                const rect = stage.getBoundingClientRect();
+                // If this stage has reached or passed the sticky threshold, and its bottom hasn't scrolled completely away
+                if (rect.top <= threshold + 25 && rect.bottom > threshold) {
+                    currentActiveId = stage.id;
+                }
+            });
+
+            setActiveCategoryBtn(currentActiveId);
+        }
+
+        window.addEventListener('scroll', function () {
+            if (!scrollspyTicking) {
+                window.requestAnimationFrame(function () {
+                    updateCategoryScrollspy();
+                    scrollspyTicking = false;
+                });
+                scrollspyTicking = true;
+            }
+        }, { passive: true });
+
+        // Initial check on load
+        updateCategoryScrollspy();
     }
 
     /* ─── 6. Project Banner Parallax Scroll Effect ───────────────────────────── */
